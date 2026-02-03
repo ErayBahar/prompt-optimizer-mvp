@@ -17,7 +17,7 @@ app.add_middleware(
         "http://127.0.0.1:5175",
         "http://127.0.0.1:5176",
         "https://prompt-optimizer-mvp-tau.vercel.app",
-        "https://prompt-optimizer-mvp-3.onrender.com",
+        "https://prompt-optimizer-mvp-7.onrender.com",
     ],
     allow_credentials=True,
     allow_methods=["*"],
