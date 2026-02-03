@@ -10,11 +10,17 @@ load_dotenv()
 # starting firebase (singleton pattern)
 def initialize_firebase():
     if not firebase_admin._apps:
+        # Get the private key and replace literal \n with actual newlines
+        private_key = os.getenv("FIREBASE_PRIVATE_KEY", "")
+        # Handle both literal \n in string and actual newlines
+        if "\\n" in private_key:
+            private_key = private_key.replace("\\n", "\n")
+        
         service_account_info = {
             "type": os.getenv("FIREBASE_TYPE"),
             "project_id": os.getenv("FIREBASE_PROJECT_ID"),
             "private_key_id": os.getenv("FIREBASE_PRIVATE_KEY_ID"),
-            "private_key": os.getenv("FIREBASE_PRIVATE_KEY"),
+            "private_key": private_key,
             "client_email": os.getenv("FIREBASE_CLIENT_EMAIL"),
             "client_id": os.getenv("FIREBASE_CLIENT_ID"),
             "auth_uri": os.getenv("FIREBASE_AUTH_URI"),
