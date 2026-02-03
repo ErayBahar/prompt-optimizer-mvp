@@ -1,0 +1,19 @@
+# Python
+__pycache__/
+*.py[cod]
+venv/
+.env
+
+# OS
+.DS_Store
+
+# IDE
+.vscode/
+.idea/
+
+# Firebase credentials
+backend/services/serviceAccountKey.json
+
+node_modules/
+**/node_modules/
+frontend/node_modules

@@ -1,0 +1,12 @@
+fastapi
+uvicorn
+gunicorn
+python-dotenv
+firebase-admin
+openai
+pydantic
+bcrypt
+pyjwt
+passlib
+passlib[jwt]
+tiktoken
