@@ -34,7 +34,8 @@ def run_nebius_ai(prompt: str, system_prompt: str, ai_model: str = "openai/gpt-o
                 "content" : f"Given prompt:{prompt}"
             },
         ],
-        
+        response_format={"type": "json_object"},
+        temperature=0.7,
     )
 
     return json.loads(response.to_json())

@@ -179,20 +179,29 @@ class PromptDBModel(BaseModel):
 
         # Get parsed data and scores
         content = response["choices"][0]["message"]["content"]
+        
         if isinstance(content, str):
-            content = json.loads(content)
+            if not content.strip():
+                raise ValueError("AI returned empty response")
+            try:
+                content = json.loads(content)
+            except json.JSONDecodeError as e:
+                print(f"JSON decode error: {e}")
+                print(f"Content that failed to parse: {content}")
+                raise ValueError(f"AI returned invalid JSON: {str(e)}")
+        
         self.parsedData = ParsedPrompt(**content)
         self.initialTokenSize = count_tokens(self.inputPrompt)
 
         # Calculate overall score
         total_weight = sum(self.weights.values())
-        self.inputPromptScore = 10 * (
+        self.inputPromptScore = round(10 * (
             (self.parsedData.task_score * self.weights.get("task", 0) / total_weight)
             + (self.parsedData.role_score * self.weights.get("role", 0) / total_weight)
             + (self.parsedData.style_score * self.weights.get("style", 0) / total_weight)
             + (self.parsedData.output_score * self.weights.get("output", 0) / total_weight)
             + (self.parsedData.rules_score * self.weights.get("rules", 0) / total_weight)
-        )
+        ), 2)
 
         return {
             "parsedData": self.parsedData.to_dict() if self.parsedData else None,
@@ -235,12 +244,18 @@ class PromptDBModel(BaseModel):
             prompt=self.inputPrompt, system_prompt=system_prompt, ai_model=ai_model
         )
 
-        print(response)
-
         response_content = response["choices"][0]["message"]["content"]
 
-        if isinstance(response["choices"][0]["message"]["content"], str):
-            response_content = json.loads(response["choices"][0]["message"]["content"])
+
+        if isinstance(response_content, str):
+            if not response_content.strip():
+                raise ValueError("AI returned empty response for optimization")
+            try:
+                response_content = json.loads(response_content)
+            except json.JSONDecodeError as e:
+                print(f"JSON decode error: {e}")
+                print(f"Content that failed to parse: {response_content}")
+                raise ValueError(f"AI returned invalid JSON for optimization: {str(e)}")
         
 
         new_optimized_id = str(uuid.uuid4())
@@ -250,13 +265,16 @@ class PromptDBModel(BaseModel):
 
         # Calculate optimized score using same weights
         total_weight = sum(self.weights.values())
-        optimized_score = 10*(
+        optimized_score = round(10*(
             (response_content.get("task_score", 0) * self.weights.get(  "task", 0) / total_weight)
             + (response_content.get("role_score", 0) * self.weights.get("role", 0) / total_weight)
             + (response_content.get("style_score", 0) * self.weights.get("style", 0) / total_weight)
             + (response_content.get("output_score", 0) * self.weights.get("output", 0) / total_weight)
             + (response_content.get("rules_score", 0) * self.weights.get("rules", 0) / total_weight)
-        )
+        ), 2)
+        
+        # Assign to overallScore so it gets saved to Firestore
+        self.overallScore = optimized_score
 
         return {
             "optimizedPromptID": new_optimized_id,
@@ -281,7 +299,7 @@ class PromptDBModel(BaseModel):
 
     def save_latency_to_firestore(self, latency) -> bool:
         try:
-            self.latencyMs = latency
+            self.latencyMs = round(latency, 2)
 
             db = get_firestore_client()
             prompt_ref = db.collection("prompts").document(self.promptID)
