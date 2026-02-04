@@ -12,12 +12,14 @@ try:
     from ..schemas.prompt import PromptDBModel, PromptInput
     from ..services.nebius_ai import  test_nebius_api
     from ..services.firebase_db import get_firestore_client
+    from ..services.sanitize import validate_and_sanitize, sanitize_input
 except ImportError:
     # Add parent directory to path when running directly
     sys.path.insert(0, str(Path(__file__).resolve().parent.parent))
     from schemas.prompt import PromptDBModel, PromptInput
     from services.nebius_ai import test_nebius_api
     from services.firebase_db import get_firestore_client
+    from services.sanitize import validate_and_sanitize, sanitize_input
     
 import uuid
 
@@ -123,16 +125,35 @@ async def optimize_prompt(request: OptimizeRequest):
     """
     Combined workflow: Parse and optimize in one request.
     For quick optimization without UI interaction between steps.
+    TC-87: Input sanitization for security
     """
     try:
         total_start = perf_counter()
         
-        # Create prompt model
+        # TC-87: Validate and sanitize input prompt
+        validation_result = validate_and_sanitize(
+            request.inputPrompt,
+            max_length=10000,
+            min_length=10,
+            check_sql_injection=True,
+            check_xss=True,
+        )
+        
+        if not validation_result["is_valid"]:
+            raise HTTPException(
+                status_code=400, 
+                detail=f"Invalid input: {', '.join(validation_result['errors'])}"
+            )
+        
+        # Use sanitized input
+        sanitized_prompt = validation_result["sanitized_value"]
+        
+        # Create prompt model with sanitized input
         prompt_model = PromptDBModel(
             promptID=str(uuid.uuid4()),
-            userID=request.userID,
+            userID=sanitize_input(request.userID),  # Sanitize user ID too
             projectID="default-project",
-            inputPrompt=request.inputPrompt,
+            inputPrompt=sanitized_prompt,
             usedLLM=request.ai_model,
             weights=request.weights
         )
@@ -261,6 +282,7 @@ async def delete_prompt(prompt_id: str):
 async def save_feedback(feedback_data: dict):
     """
     Save user rating for a prompt (1-5)
+    TC-87: Input sanitization for security
     
     Request body:
     {
@@ -276,13 +298,18 @@ async def save_feedback(feedback_data: dict):
         if not rating or not isinstance(rating, (int, float)) or rating < 1 or rating > 5:
             raise HTTPException(status_code=400, detail="Rating must be a number between 1 and 5")
         
+        # TC-87: Sanitize promptID
+        prompt_id = feedback_data.get("promptID")
+        if prompt_id:
+            prompt_id = sanitize_input(str(prompt_id))
+        
         # Update prompt with rating directly
-        if feedback_data.get("promptID"):
-            prompt_ref = db.collection("prompts").document(feedback_data["promptID"])
+        if prompt_id:
+            prompt_ref = db.collection("prompts").document(prompt_id)
             prompt_ref.update({
                 "ratings": {"user": int(rating)}
             })
-            return {"status": "success", "promptID": feedback_data["promptID"]}
+            return {"status": "success", "promptID": prompt_id}
         else:
             raise HTTPException(status_code=400, detail="promptID is required")
         

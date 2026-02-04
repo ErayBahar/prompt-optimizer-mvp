@@ -1,6 +1,7 @@
 import { useState, useEffect, useRef } from 'react';
 import { countTokens } from '@/services/apiService';
 import { Eraser } from 'lucide-react';
+import { validateAndSanitize, detectXss } from '@/utils/sanitize';
 
 interface PromptInputProps {
   value: string;
@@ -15,10 +16,21 @@ export function PromptInput({ value, onChange, onClear, selectedLLM, hasOptimize
   const MAX_LENGTH = 1000;
   const [tokenCount, setTokenCount] = useState(0);
   const [isCountingTokens, setIsCountingTokens] = useState(false);
+  const [securityWarning, setSecurityWarning] = useState<string | null>(null);
   const debounceTimerRef = useRef<NodeJS.Timeout | null>(null);
   
   const handleChange = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
     const newValue = e.target.value;
+    
+    // TC-87: Security check for XSS/injection
+    const xssCheck = detectXss(newValue);
+    if (!xssCheck.isValid) {
+      setSecurityWarning('Potentially unsafe content detected. Some characters may be sanitized.');
+      // Allow input but show warning - will be sanitized on submit
+    } else {
+      setSecurityWarning(null);
+    }
+    
     // Karakter limitini aşmayı engelle
     if (newValue.length <= MAX_LENGTH) {
       onChange(newValue);
@@ -119,6 +131,16 @@ export function PromptInput({ value, onChange, onClear, selectedLLM, hasOptimize
         placeholder="Enter your prompt to optimize... (minimum 10 characters)"
         className="w-full h-28 sm:h-32 px-3 py-2.5 sm:px-4 sm:py-3 text-sm sm:text-base border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent resize-none"
       />
+      
+      {/* TC-87: Security warning for XSS/injection attempts */}
+      {securityWarning && (
+        <p className="text-xs text-amber-600 dark:text-amber-400 mt-1 flex items-center gap-1">
+          <svg className="w-3 h-3" fill="currentColor" viewBox="0 0 20 20">
+            <path fillRule="evenodd" d="M8.257 3.099c.765-1.36 2.722-1.36 3.486 0l5.58 9.92c.75 1.334-.213 2.98-1.742 2.98H4.42c-1.53 0-2.493-1.646-1.743-2.98l5.58-9.92zM11 13a1 1 0 11-2 0 1 1 0 012 0zm-1-8a1 1 0 00-1 1v3a1 1 0 002 0V6a1 1 0 00-1-1z" clipRule="evenodd" />
+          </svg>
+          {securityWarning}
+        </p>
+      )}
     </div>
   );
 }
