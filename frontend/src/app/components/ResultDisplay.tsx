@@ -289,9 +289,19 @@ export function ResultDisplay({
 
   // Calculate improvement percentage - TC-111
   const calculateImprovement = () => {
-    if (originalScore === null || optimizedScore === null || originalScore === 0) {
+    if (originalScore === null || optimizedScore === null) {
       return null;
     }
+    
+    // Special case: if original score is 0, we can't calculate percentage
+    // but we can show that there's been improvement
+    if (originalScore === 0) {
+      if (optimizedScore > 0) {
+        return 'NEW'; // Show "NEW" badge instead of percentage
+      }
+      return null;
+    }
+    
     return Math.round(((optimizedScore - originalScore) / originalScore) * 100);
   };
 
@@ -309,7 +319,10 @@ export function ResultDisplay({
             <div className="flex items-center gap-1.5 sm:gap-2 px-3 py-1.5 sm:px-4 sm:py-2 bg-amber-50 dark:bg-amber-900/30 rounded-lg transition-colors">
               <Award className="w-3 h-3 sm:w-4 sm:h-4 text-amber-600 dark:text-amber-400" />
               <span className="text-xs sm:text-sm font-medium text-amber-900 dark:text-amber-200">
-                {improvementPercentage > 0 ? '+' : ''}{improvementPercentage}% improvement
+                {improvementPercentage === 'NEW' 
+                  ? 'New Score' 
+                  : `${improvementPercentage > 0 ? '+' : ''}${improvementPercentage}% improvement`
+                }
               </span>
             </div>
           )}

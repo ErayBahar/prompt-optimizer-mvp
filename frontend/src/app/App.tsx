@@ -391,8 +391,11 @@ function AppContent() {
   // Project handlers
   const handleCreateProject = async (name: string) => {
     const result = await createProject(name);
+    console.log('Create project result:', result);
     if (result.success && result.project) {
-      await loadProjects(); // Reload from cache which was already updated
+      // Force reload from cache to ensure state is in sync
+      const loadedProjects = await getProjects();
+      setProjects([...loadedProjects]); // Create new array reference to force re-render
       toast.success('Project created successfully.');
     } else {
       toast.error(result.error || 'Failed to create project.');
@@ -405,10 +408,14 @@ function AppContent() {
       // Promptu projeye ekle
       const addResult = await addPromptToProject(result.project.id, promptId);
       if (addResult.success) {
-        // Projeleri yeniden yükle
-        await loadProjects();
+        // Force reload from cache to ensure state is in sync
+        const loadedProjects = await getProjects();
+        setProjects([...loadedProjects]); // Create new array reference to force re-render
         toast.success('Project created and prompt added successfully.');
       } else {
+        // Still reload projects even if adding prompt failed
+        const loadedProjects = await getProjects();
+        setProjects([...loadedProjects]);
         toast.error(addResult.error || 'Project created but failed to add prompt.');
       }
     } else {
@@ -419,7 +426,8 @@ function AppContent() {
   const handleRenameProject = async (projectId: string, newName: string) => {
     const result = await renameProject(projectId, newName);
     if (result.success) {
-      await loadProjects();
+      const loadedProjects = await getProjects();
+      setProjects([...loadedProjects]);
       toast.success('Project name updated.');
     } else {
       toast.error(result.error || 'Failed to rename project.');
@@ -496,7 +504,8 @@ function AppContent() {
     
     const result = await removePromptFromProject(selectedProjectId, promptId);
     if (result.success) {
-      await loadProjects();
+      const loadedProjects = await getProjects();
+      setProjects([...loadedProjects]);
       toast.success('Removed from project.');
     } else {
       toast.error(result.error || 'Failed to remove from project.');

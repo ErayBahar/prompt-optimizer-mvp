@@ -45,17 +45,17 @@ export function ErrorDisplay({ type, message, onRetry, cooldownSeconds }: ErrorD
   const Icon = config.icon;
 
   return (
-    <div className="mt-6 sm:mt-8 bg-white border-2 border-red-200 rounded-lg p-4 sm:p-6">
+    <div className="mt-6 sm:mt-8 bg-white dark:bg-gray-800 border-2 border-red-200 dark:border-red-800 rounded-lg p-4 sm:p-6 transition-colors">
       <div className="flex flex-col items-center text-center space-y-3 sm:space-y-4">
-        <div className={`w-12 h-12 sm:w-14 sm:h-14 rounded-full bg-${config.color}-100 flex items-center justify-center`}>
-          <Icon className={`w-6 h-6 sm:w-7 sm:h-7 text-${config.color}-600`} />
+        <div className={`w-12 h-12 sm:w-14 sm:h-14 rounded-full bg-${config.color}-100 dark:bg-${config.color}-900/30 flex items-center justify-center`}>
+          <Icon className={`w-6 h-6 sm:w-7 sm:h-7 text-${config.color}-600 dark:text-${config.color}-400`} />
         </div>
         
         <div className="space-y-1.5 sm:space-y-2">
-          <h3 className="text-base sm:text-lg font-semibold text-gray-900">
+          <h3 className="text-base sm:text-lg font-semibold text-gray-900 dark:text-gray-100">
             {config.title}
           </h3>
-          <p className="text-sm sm:text-base text-gray-600 max-w-md">
+          <p className="text-sm sm:text-base text-gray-600 dark:text-gray-400 max-w-md">
             {message}
           </p>
         </div>
@@ -64,7 +64,7 @@ export function ErrorDisplay({ type, message, onRetry, cooldownSeconds }: ErrorD
           <button
             onClick={onRetry}
             disabled={cooldownSeconds !== undefined && cooldownSeconds > 0}
-            className="flex items-center gap-2 px-4 sm:px-6 py-2 sm:py-2.5 bg-blue-600 text-white text-sm sm:text-base font-semibold rounded-lg hover:bg-blue-700 disabled:bg-gray-300 disabled:cursor-not-allowed transition-colors"
+            className="flex items-center gap-2 px-4 sm:px-6 py-2 sm:py-2.5 bg-blue-600 text-white text-sm sm:text-base font-semibold rounded-lg hover:bg-blue-700 disabled:bg-gray-300 dark:disabled:bg-gray-600 disabled:cursor-not-allowed transition-colors"
           >
             <RefreshCw className="w-4 h-4 sm:w-5 sm:h-5" />
             <span>

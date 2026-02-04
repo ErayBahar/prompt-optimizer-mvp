@@ -80,33 +80,33 @@ export function PromptInput({ value, onChange, onClear, selectedLLM, hasOptimize
   return (
     <div className="space-y-1.5 sm:space-y-2">
       <div className="flex justify-between items-center">
-        <label htmlFor="prompt-input" className="block text-xs sm:text-sm font-medium text-gray-700">
+        <label htmlFor="prompt-input" className="block text-xs sm:text-sm font-medium text-gray-700 dark:text-gray-300">
           Prompt Input
         </label>
         <div className="flex items-center gap-3 sm:gap-4">
-          <span className={`text-xs sm:text-sm ${isNearLimit ? 'text-orange-600 font-medium' : 'text-gray-500'}`}>
+          <span className={`text-xs sm:text-sm ${isNearLimit ? 'text-orange-600 dark:text-orange-400 font-medium' : 'text-gray-500 dark:text-gray-400'}`}>
             {characterCount}/{MAX_LENGTH} chars
           </span>
-          <span className="text-xs sm:text-sm text-gray-500 min-w-[80px] text-right">
+          <span className="text-xs sm:text-sm text-gray-500 dark:text-gray-400 min-w-[80px] text-right">
             {isCountingTokens ? (
-              <span className="text-gray-400">counting...</span>
+              <span className="text-gray-400 dark:text-gray-500">counting...</span>
             ) : (
-              <>{tokenCount} tokens</>
+              <>~ {tokenCount} tokens</>
             )}
           </span>
           {/* TC-27: Clear button sadece içerik varsa göster */}
           {showClearButtonFinal && (
             <button
               onClick={handleClear}
-              className="p-1 text-blue-600 hover:text-blue-700 hover:bg-blue-50 rounded transition-colors relative group"
+              className="p-1 text-blue-600 dark:text-blue-400 hover:text-blue-700 dark:hover:text-blue-300 hover:bg-blue-50 dark:hover:bg-blue-900/30 rounded transition-colors relative group"
               aria-label="Clear all"
             >
               <Eraser className="w-4 h-4 sm:w-5 sm:h-5" />
               {/* Tooltip with arrow */}
-              <span className="absolute bottom-full right-0 mb-2 px-2 py-1 text-xs font-medium text-white bg-gray-900 rounded whitespace-nowrap opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none z-10">
+              <span className="absolute bottom-full right-0 mb-2 px-2 py-1 text-xs font-medium text-white bg-gray-900 dark:bg-gray-700 rounded whitespace-nowrap opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none z-10">
                 Clear all
                 {/* Arrow pointing down */}
-                <span className="absolute top-full right-2 -mt-1 border-4 border-transparent border-t-gray-900"></span>
+                <span className="absolute top-full right-2 -mt-1 border-4 border-transparent border-t-gray-900 dark:border-t-gray-700"></span>
               </span>
             </button>
           )}
@@ -119,7 +119,7 @@ export function PromptInput({ value, onChange, onClear, selectedLLM, hasOptimize
         maxLength={MAX_LENGTH}
         placeholder="Enter your prompt to optimize... (minimum 10 characters)"
         disabled={isDisabled}
-        className={`w-full h-28 sm:h-32 px-3 py-2.5 sm:px-4 sm:py-3 text-sm sm:text-base border rounded-lg resize-none transition-all duration-300 ease-in-out ${
+        className={`w-full h-28 sm:h-32 px-3 py-2.5 sm:px-4 sm:py-3 text-sm sm:text-base border rounded-lg resize-none transition-all duration-300 ease-in-out placeholder:text-gray-400 dark:placeholder:text-gray-500 ${
           isDisabled 
             ? 'bg-gray-50 dark:bg-gray-800/50 border-gray-200 dark:border-gray-700 text-gray-500 dark:text-gray-500 cursor-not-allowed opacity-70 shadow-none' 
             : 'bg-white dark:bg-gray-800 border-gray-300 dark:border-gray-600 text-gray-900 dark:text-gray-100 focus:ring-2 focus:ring-blue-500 dark:focus:ring-blue-400 focus:border-transparent hover:border-gray-400 dark:hover:border-gray-500'
