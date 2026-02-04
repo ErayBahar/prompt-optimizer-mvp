@@ -976,7 +976,7 @@ function AppContent() {
 
       {/* Sol Kenar Çubuğu - Tab-based View */}
       <div 
-        className={`bg-white dark:bg-gray-800 border-r border-gray-200 dark:border-gray-700 flex flex-col transition-all duration-300 min-h-screen ${
+        className={`bg-white dark:bg-gray-800 border-r border-gray-200 dark:border-gray-700 flex flex-col transition-all duration-300 h-screen max-h-screen ${
           isSidebarOpen 
             ? 'fixed sm:relative z-50 sm:z-auto w-full sm:w-80' 
             : 'w-0 sm:w-0 overflow-hidden border-r-0'
@@ -1134,6 +1134,7 @@ function AppContent() {
             selectedLLM={selectedLLM}
             hasOptimizedResult={!!optimizedPrompt}
             showClearButton={!isViewingProjectPrompt}
+            isDisabled={isOptimizing || !!optimizedPrompt || isViewingProjectPrompt}
           />
           
           <LLMSelector 

@@ -10,9 +10,10 @@ interface PromptInputProps {
   selectedLLM?: string;
   hasOptimizedResult?: boolean; // ✅ Optimize sonucu var mı kontrolü
   showClearButton?: boolean; // ✅ Clear butonunu göster/gizle
+  isDisabled?: boolean; // ✅ Disable input during optimization
 }
 
-export function PromptInput({ value, onChange, onClear, selectedLLM, hasOptimizedResult, showClearButton = true }: PromptInputProps) {
+export function PromptInput({ value, onChange, onClear, selectedLLM, hasOptimizedResult, showClearButton = true, isDisabled = false }: PromptInputProps) {
   const MAX_LENGTH = 1000;
   const [tokenCount, setTokenCount] = useState(0);
   const [isCountingTokens, setIsCountingTokens] = useState(false);
@@ -129,7 +130,12 @@ export function PromptInput({ value, onChange, onClear, selectedLLM, hasOptimize
         onChange={handleChange}
         maxLength={MAX_LENGTH}
         placeholder="Enter your prompt to optimize... (minimum 10 characters)"
-        className="w-full h-28 sm:h-32 px-3 py-2.5 sm:px-4 sm:py-3 text-sm sm:text-base border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent resize-none"
+        disabled={isDisabled}
+        className={`w-full h-28 sm:h-32 px-3 py-2.5 sm:px-4 sm:py-3 text-sm sm:text-base border rounded-lg resize-none transition-all duration-300 ease-in-out ${
+          isDisabled 
+            ? 'bg-gray-50 dark:bg-gray-800/50 border-gray-200 dark:border-gray-700 text-gray-500 dark:text-gray-500 cursor-not-allowed opacity-70 shadow-none' 
+            : 'bg-white dark:bg-gray-800 border-gray-300 dark:border-gray-600 text-gray-900 dark:text-gray-100 focus:ring-2 focus:ring-blue-500 dark:focus:ring-blue-400 focus:border-transparent hover:border-gray-400 dark:hover:border-gray-500'
+        }`}
       />
       
       {/* TC-87: Security warning for XSS/injection attempts */}

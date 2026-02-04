@@ -250,8 +250,8 @@ async def get_prompt_history(user_id: str, limit: int = 50):
                 "tokenCount" : data.get("finalTokenSize", 0),
                 "weights" : data.get("weights", {}),
                 "parsedData": data.get("parsedData", {}),
-                "overallScore": data.get("overallScore", 0),
-                "inputPromptScore": data.get("inputPromptScore", 0),
+                "optimizedScore": data.get("overallScore", 0),
+                "originalScore": data.get("inputPromptScore", 0),
                 "isFavorite": data.get("isFavorite", False),
                 "projectID": data.get("projectID", "default-project")
             })
