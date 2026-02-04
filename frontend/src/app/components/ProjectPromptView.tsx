@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { ArrowLeft, Heart, Trash2, X, Clock } from 'lucide-react';
 import type { Project } from '../../services/projectService';
+import { DeletePromptFromProjectDialog } from './DeletePromptFromProjectDialog';
 
 interface HistoryItem {
   id: string;
@@ -32,14 +33,34 @@ export function ProjectPromptView({
   onRemoveFromProject,
   selectedPromptId,
 }: ProjectPromptViewProps) {
+  const [showDeleteDialog, setShowDeleteDialog] = useState(false);
+  const [deletingPromptId, setDeletingPromptId] = useState<string | null>(null);
+  const [isDeleting, setIsDeleting] = useState(false);
+
   const handleToggleFavorite = (e: React.MouseEvent, promptId: string) => {
     e.stopPropagation();
     onToggleFavorite(promptId);
   };
 
-  const handleRemove = (e: React.MouseEvent, promptId: string) => {
+  const handleRemoveClick = (e: React.MouseEvent, promptId: string) => {
     e.stopPropagation();
-    onRemoveFromProject(promptId);
+    setDeletingPromptId(promptId);
+    setShowDeleteDialog(true);
+  };
+
+  const handleRemoveConfirm = async () => {
+    if (deletingPromptId) {
+      setIsDeleting(true);
+      await onRemoveFromProject(deletingPromptId);
+      setIsDeleting(false);
+      setShowDeleteDialog(false);
+      setDeletingPromptId(null);
+    }
+  };
+
+  const handleRemoveCancel = () => {
+    setShowDeleteDialog(false);
+    setDeletingPromptId(null);
   };
 
   return (
@@ -99,7 +120,7 @@ export function ProjectPromptView({
                 </p>
 
                 {/* Rating Display */}
-                {prompt.rating && (
+                {prompt.rating != null && (
                   <div className="flex items-center gap-1 mb-2">
                     {[1, 2, 3, 4, 5].map((star) => (
                       <span
@@ -116,7 +137,7 @@ export function ProjectPromptView({
                 <div className="absolute top-2 right-2 flex gap-1">
                   <button
                     onClick={(e) => handleToggleFavorite(e, prompt.id)}
-                    className={`p-1.5 rounded transition-colors opacity-0 group-hover:opacity-100 ${
+                    className={`p-1.5 rounded transition-colors sm:opacity-0 sm:group-hover:opacity-100 ${
                       prompt.isFavorite
                         ? 'text-rose-500 hover:bg-rose-50 dark:hover:bg-rose-900/30 opacity-100'
                         : 'text-gray-400 dark:text-gray-500 hover:text-rose-500 hover:bg-gray-50 dark:hover:bg-gray-700'
@@ -126,8 +147,8 @@ export function ProjectPromptView({
                     <Heart className={`w-4 h-4 ${prompt.isFavorite ? 'fill-rose-500' : ''}`} />
                   </button>
                   <button
-                    onClick={(e) => handleRemove(e, prompt.id)}
-                    className="p-1.5 text-gray-400 dark:text-gray-500 hover:text-red-600 dark:hover:text-red-400 hover:bg-red-50 dark:hover:bg-red-900/30 rounded transition-colors opacity-0 group-hover:opacity-100"
+                    onClick={(e) => handleRemoveClick(e, prompt.id)}
+                    className="p-1.5 text-gray-400 dark:text-gray-500 hover:text-red-600 dark:hover:text-red-400 hover:bg-red-50 dark:hover:bg-red-900/30 rounded transition-colors sm:opacity-0 sm:group-hover:opacity-100"
                     title="Remove from project"
                   >
                     <X className="w-4 h-4" />
@@ -143,6 +164,14 @@ export function ProjectPromptView({
           </div>
         )}
       </div>
+
+      {/* Delete Confirmation Dialog */}
+      <DeletePromptFromProjectDialog
+        open={showDeleteDialog}
+        onConfirm={handleRemoveConfirm}
+        onCancel={handleRemoveCancel}
+        isDeleting={isDeleting}
+      />
     </div>
   );
 }

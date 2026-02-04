@@ -1,5 +1,5 @@
 import { useState, useEffect, useRef } from 'react';
-import { HelpCircle, X, Mail, Phone, Clock } from 'lucide-react';
+import { HelpCircle, X, Mail, Clock, Globe, Instagram, Linkedin, Share2 } from 'lucide-react';
 
 export function HelpButton() {
   const [isOpen, setIsOpen] = useState(false);
@@ -123,20 +123,40 @@ export function HelpButton() {
 
               {/* Contact Information */}
               <div className="space-y-4">
-                {/* Email */}
+                {/* Website */}
                 <div className="flex items-start gap-3">
                   <div className="flex-shrink-0 w-10 h-10 bg-blue-100 dark:bg-blue-900/30 rounded-lg flex items-center justify-center">
-                    <Mail className="w-5 h-5 text-blue-600 dark:text-blue-400" />
+                    <Globe className="w-5 h-5 text-blue-600 dark:text-blue-400" />
+                  </div>
+                  <div className="flex-1 min-w-0">
+                    <h3 className="text-sm font-semibold text-gray-900 dark:text-gray-100 mb-1">
+                      Website
+                    </h3>
+                    <a
+                      href="https://entrophi.co"
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="text-sm text-blue-600 dark:text-blue-400 hover:underline break-all focus:outline-none focus:ring-2 focus:ring-blue-500 rounded"
+                    >
+                      entrophi.co
+                    </a>
+                  </div>
+                </div>
+
+                {/* Email */}
+                <div className="flex items-start gap-3">
+                  <div className="flex-shrink-0 w-10 h-10 bg-purple-100 dark:bg-purple-900/30 rounded-lg flex items-center justify-center">
+                    <Mail className="w-5 h-5 text-purple-600 dark:text-purple-400" />
                   </div>
                   <div className="flex-1 min-w-0">
                     <h3 className="text-sm font-semibold text-gray-900 dark:text-gray-100 mb-1">
                       Email
                     </h3>
                     <a
-                      href="mailto:emre@entrophi.co"
-                      className="text-sm text-blue-600 dark:text-blue-400 hover:underline break-all focus:outline-none focus:ring-2 focus:ring-blue-500 rounded"
+                      href="mailto:info@entrophi.co"
+                      className="text-sm text-purple-600 dark:text-purple-400 hover:underline break-all focus:outline-none focus:ring-2 focus:ring-purple-500 rounded"
                     >
-                      emre@entrophi.co
+                      info@entrophi.co
                     </a>
                     <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">
                       We respond within 24 hours
@@ -144,31 +164,42 @@ export function HelpButton() {
                   </div>
                 </div>
 
-                {/* Phone */}
+                {/* Social */}
                 <div className="flex items-start gap-3">
-                  <div className="flex-shrink-0 w-10 h-10 bg-green-100 dark:bg-green-900/30 rounded-lg flex items-center justify-center">
-                    <Phone className="w-5 h-5 text-green-600 dark:text-green-400" />
+                  <div className="flex-shrink-0 w-10 h-10 bg-pink-100 dark:bg-pink-900/30 rounded-lg flex items-center justify-center">
+                    <Share2 className="w-5 h-5 text-pink-600 dark:text-pink-400" />
                   </div>
                   <div className="flex-1 min-w-0">
-                    <h3 className="text-sm font-semibold text-gray-900 dark:text-gray-100 mb-1">
-                      Phone
+                    <h3 className="text-sm font-semibold text-gray-900 dark:text-gray-100 mb-2">
+                      Social
                     </h3>
-                    <a
-                      href="tel:+908501234567"
-                      className="text-sm text-green-600 dark:text-green-400 hover:underline focus:outline-none focus:ring-2 focus:ring-green-500 rounded"
-                    >
-                      +90 850 123 45 67
-                    </a>
-                    <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">
-                      Direct call on mobile devices
-                    </p>
+                    <div className="space-y-1.5">
+                      <a
+                        href="https://www.instagram.com/entrophi.co?igsh=cGh0OTgzN2Jnc2Fq"
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="flex items-center gap-2 text-sm text-pink-600 dark:text-pink-400 hover:underline focus:outline-none focus:ring-2 focus:ring-pink-500 rounded"
+                      >
+                        <Instagram className="w-4 h-4" />
+                        Instagram
+                      </a>
+                      <a
+                        href="https://www.linkedin.com/company/entrophico/"
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="flex items-center gap-2 text-sm text-blue-700 dark:text-blue-400 hover:underline focus:outline-none focus:ring-2 focus:ring-blue-500 rounded"
+                      >
+                        <Linkedin className="w-4 h-4" />
+                        LinkedIn
+                      </a>
+                    </div>
                   </div>
                 </div>
 
                 {/* Working Hours */}
                 <div className="flex items-start gap-3">
-                  <div className="flex-shrink-0 w-10 h-10 bg-purple-100 dark:bg-purple-900/30 rounded-lg flex items-center justify-center">
-                    <Clock className="w-5 h-5 text-purple-600 dark:text-purple-400" />
+                  <div className="flex-shrink-0 w-10 h-10 bg-green-100 dark:bg-green-900/30 rounded-lg flex items-center justify-center">
+                    <Clock className="w-5 h-5 text-green-600 dark:text-green-400" />
                   </div>
                   <div className="flex-1 min-w-0">
                     <h3 className="text-sm font-semibold text-gray-900 dark:text-gray-100 mb-1">

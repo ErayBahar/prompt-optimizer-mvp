@@ -147,7 +147,7 @@ async def optimize_prompt(request: OptimizeRequest):
         total_latency = (perf_counter() - total_start) * 1000
         
         # Save latency
-        prompt_model.latencyMs = total_latency
+        prompt_model.latencyMs = round(total_latency, 2)
         
         # Save to Firestore
         prompt_model.set_to_firestore()
@@ -215,7 +215,7 @@ async def get_prompt_history(user_id: str, limit: int = 50):
             if hasattr(created_at, 'isoformat'):
                 created_at = created_at.isoformat()
             
-            history.append({
+            item = {
                 "id": data.get("promptID"),
                 "prompt": data.get("inputPrompt"),
                 "optimizedPrompt": data.get("optimizedPrompt"),
@@ -225,15 +225,19 @@ async def get_prompt_history(user_id: str, limit: int = 50):
                 "latency": data.get("latencyMs"),
                 "isFavorite": data.get("isFavorite", False),
                 "usedLLM" : data.get("usedLLM", ""),
-                "rating" : data.get("ratings", 0),
                 "tokenCount" : data.get("finalTokenSize", 0),
                 "weights" : data.get("weights", {}),
                 "parsedData": data.get("parsedData", {}),
                 "optimizedScore": data.get("overallScore", 0),
                 "originalScore": data.get("inputPromptScore", 0),
-                "isFavorite": data.get("isFavorite", False),
                 "projectID": data.get("projectID", "default-project")
-            })
+            }
+            
+            # Only include rating if it exists (not 0 or None)
+            if data.get("rating"):
+                item["rating"] = data.get("rating")
+            
+            history.append(item)
         
         # Sort by timestamp in Python (descending)
         history.sort(key=lambda x: x.get("timestamp") or "", reverse=True)
@@ -280,7 +284,7 @@ async def save_feedback(feedback_data: dict):
         if feedback_data.get("promptID"):
             prompt_ref = db.collection("prompts").document(feedback_data["promptID"])
             prompt_ref.update({
-                "ratings": {"user": int(rating)}
+                "rating": int(rating)  
             })
             return {"status": "success", "promptID": feedback_data["promptID"]}
         else:
