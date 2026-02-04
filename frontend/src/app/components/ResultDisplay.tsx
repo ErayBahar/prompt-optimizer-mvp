@@ -363,7 +363,7 @@ export function ResultDisplay({
               )}
             </button>
           </div>
-          <div className="bg-gray-50 dark:bg-gray-900/50 rounded p-3 sm:p-4 text-xs sm:text-sm text-gray-700 dark:text-gray-300 whitespace-pre-wrap transition-colors">
+          <div className="bg-gray-50 dark:bg-gray-900/50 rounded p-3 sm:p-4 text-xs sm:text-sm text-gray-700 dark:text-gray-300 whitespace-pre-wrap break-words overflow-wrap-anywhere transition-colors">
             {renderBeforePromptWithHighlights()}
           </div>
         </div>
@@ -417,7 +417,7 @@ export function ResultDisplay({
               </button>
             </div>
           </div>
-          <div className="bg-green-50 dark:bg-green-900/20 rounded p-3 sm:p-4 text-xs sm:text-sm text-gray-700 dark:text-gray-300 whitespace-pre-wrap transition-colors">
+          <div className="bg-green-50 dark:bg-green-900/20 rounded p-3 sm:p-4 text-xs sm:text-sm text-gray-700 dark:text-gray-300 whitespace-pre-wrap break-words overflow-wrap-anywhere transition-colors">
             {renderAfterPromptWithHighlights()}
           </div>
         </div>

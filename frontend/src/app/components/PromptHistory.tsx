@@ -225,7 +225,7 @@ export function PromptHistory({
       {/* Sidebar */}
       <aside
         ref={scrollContainerRef}
-        className={`bg-white dark:bg-gray-800 border-r border-gray-200 dark:border-gray-700 overflow-y-auto transition-all duration-300 ${
+        className={`bg-white dark:bg-gray-800 border-r border-gray-200 dark:border-gray-700 overflow-y-auto custom-scrollbar transition-all duration-300 ${
           isOpen ? "w-64 sm:w-80" : "w-0"
         }`}
       >
@@ -398,7 +398,7 @@ export function PromptHistory({
                         </span>
                       </button>
                     </div>
-                    <p className="text-xs sm:text-sm text-gray-700 dark:text-gray-300 line-clamp-2 mb-1 sm:mb-1.5 pr-14 sm:pr-16">
+                    <p className="text-xs sm:text-sm text-gray-700 dark:text-gray-300 line-clamp-2 mb-1 sm:mb-1.5 pr-14 sm:pr-16 break-words overflow-wrap-anywhere">
                       {item.prompt}
                     </p>
                     <p className="text-[10px] sm:text-xs text-gray-500 dark:text-gray-400">
