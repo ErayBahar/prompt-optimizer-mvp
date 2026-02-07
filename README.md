@@ -1,93 +1,121 @@
-# 🚀 Prompt Refiner MVP
+# 🚀 Prompt Optimizer MVP
 
-<div align="center">
+> AI-powered prompt analysis and optimization platform with real-time feedback and project management
 
-![Version](https://img.shields.io/badge/version-1.0.0-blue.svg)
-![License](https://img.shields.io/badge/license-MIT-green.svg)
-![Python](https://img.shields.io/badge/Python-3.10+-3776AB?logo=python&logoColor=white)
-![React](https://img.shields.io/badge/React-18.3-61DAFB?logo=react&logoColor=white)
-![FastAPI](https://img.shields.io/badge/FastAPI-0.100+-009688?logo=fastapi&logoColor=white)
-![Firebase](https://img.shields.io/badge/Firebase-10.14-FFCA28?logo=firebase&logoColor=black)
+A full-stack web application that analyzes, scores, and optimizes user prompts for better AI interactions. Built with React (TypeScript), FastAPI (Python), Firebase, and Nebius AI.
 
-**An AI-powered middleware that optimizes user prompts for better LLM performance**
-
-[Features](#-features) • [Demo](#-demo) • [Quick Start](#-quick-start) • [Installation](#-installation) • [API Reference](#-api-reference) • [Contributing](#-contributing)
-
-</div>
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
+[![Python 3.10+](https://img.shields.io/badge/python-3.10+-blue.svg)](https://www.python.org/downloads/)
+[![React](https://img.shields.io/badge/react-18.0+-61dafb.svg)](https://reactjs.org/)
+[![TypeScript](https://img.shields.io/badge/typescript-5.0+-3178c6.svg)](https://www.typescriptlang.org/)
 
 ---
 
-## 📖 Overview
+## 📋 Table of Contents
 
-Prompt Refiner MVP is a full-stack web application that analyzes and optimizes AI prompts using advanced language models. It breaks down prompts into key components, scores them, and provides improved versions for better AI interactions.
-
-### Why Prompt Refiner?
-
-- 🎯 **Better Results**: Get more accurate and relevant responses from AI models
-- ⏱️ **Save Time**: Instantly optimize prompts instead of manual trial-and-error
-- 📊 **Measurable Quality**: Understand prompt quality through component-based scoring
-- 🔄 **Learn & Improve**: Track optimization history to learn what makes a great prompt
+- [Features](#-features)
+- [Tech Stack](#-tech-stack)
+- [Architecture](#-architecture)
+- [Quick Start](#-quick-start)
+- [Project Structure](#-project-structure)
+- [How It Works](#-how-it-works)
+- [Configuration](#-configuration)
+- [API Documentation](#-api-documentation)
+- [Deployment](#-deployment)
+- [Contributing](#-contributing)
+- [License](#-license)
 
 ---
 
 ## ✨ Features
 
 ### Core Functionality
-- **📝 Prompt Analysis** - Breaks prompts into 6 components: Task, Role, Style, Output, Rules, Context
-- **⚡ AI Optimization** - Uses Nebius AI to generate optimized prompt versions
-- **📊 Quality Scoring** - Scores each component on a 0-10 scale
-- **🎚️ Custom Weights** - Adjust importance of each scoring criterion
+- 🎯 **Intelligent Prompt Analysis** - Breaks down prompts into 6 components (Task, Role, Style, Output, Rules, Context)
+- 📊 **Scoring System** - Assigns 0-10 scores for each component with customizable weights
+- 🤖 **AI Optimization** - Uses Nebius AI to generate improved prompt versions
+- ⚡ **Real-time Metrics** - Token counting, latency tracking, and improvement percentages
 
 ### User Experience
-- **🔐 Authentication** - Secure login with Firebase Auth
-- **📜 History Tracking** - View and manage your optimization history
-- **⭐ Rating System** - Rate optimized prompts (1-5 stars)
-- **❤️ Favorites** - Save your best optimizations
-- **📁 Project Organization** - Organize prompts into projects
-- **🌓 Theme Support** - Light and dark mode
+- 🎨 **Dark/Light Theme** - Seamless theme switching with persistent preferences
+- 📱 **Responsive Design** - Mobile-first approach with tablet and desktop optimization
+- 📜 **Prompt History** - Infinite scroll, search, favorites, and project organization
+- ⭐ **Rating & Feedback** - Rate optimizations and provide feedback
+- 🗂️ **Project Management** - Organize prompts into projects with full CRUD operations
 
-### Technical Features
-- **📈 Token Counting** - Track prompt and completion tokens
-- **⏱️ Latency Metrics** - Monitor optimization speed
-- **🔌 REST API** - Full API for programmatic access
-- **☁️ Cloud Ready** - Deploy to Render, Vercel, or any cloud platform
+### Authentication & Data
+- 🔐 **Firebase Authentication** - Secure login with email/password
+- 💾 **Firestore Database** - Real-time data synchronization
+- 🔄 **State Management** - Efficient caching and instant UI updates
+- 📦 **Export/Import** - Backup and restore your data
 
 ---
 
-## 🖼️ Demo
+## 🛠️ Tech Stack
 
-### Main Interface
-The application features a clean, intuitive interface for prompt optimization:
+### Frontend
+- **Framework**: React 18 with TypeScript
+- **Build Tool**: Vite
+- **Styling**: Tailwind CSS + Custom CSS
+- **UI Components**: Radix UI (Accordion, Dialog, Drawer, etc.)
+- **Icons**: Lucide React
+- **Toast Notifications**: Sonner
+- **HTTP Client**: Fetch API with custom wrapper
 
-1. **Enter your prompt** in the input area
-2. **Select an LLM** from the dropdown
-3. **Adjust score weights** for different criteria
-4. **Click Optimize** to get an improved version
-5. **Rate and save** your favorite optimizations
+### Backend
+- **Framework**: FastAPI (Python 3.10+)
+- **AI Integration**: Nebius AI (OpenAI-compatible API)
+- **Database**: Firebase Firestore
+- **Authentication**: Firebase Admin SDK
+- **Token Counting**: tiktoken
+- **Server**: Uvicorn (ASGI)
+
+### Infrastructure
+- **Hosting**: Render (Backend) / Vercel (Frontend)
+- **Version Control**: Git + GitHub
+- **Environment**: dotenv for configuration
 
 ---
 
 ## 🏗️ Architecture
 
 ```
-┌─────────────────────────────────────────────────────────────────┐
-│                        Frontend (React)                         │
-│  ┌─────────────┐  ┌─────────────┐  ┌─────────────────────────┐ │
-│  │  Login Page │  │ Prompt View │  │    History Sidebar      │ │
-│  └─────────────┘  └─────────────┘  └─────────────────────────┘ │
-└────────────────────────────┬────────────────────────────────────┘
-                             │ REST API
-┌────────────────────────────▼────────────────────────────────────┐
-│                       Backend (FastAPI)                          │
-│  ┌─────────────┐  ┌─────────────┐  ┌─────────────────────────┐ │
-│  │ Auth Router │  │Prompt Router│  │     User Router         │ │
-│  └─────────────┘  └─────────────┘  └─────────────────────────┘ │
-└──────────┬─────────────────┬────────────────────────────────────┘
-           │                 │
-    ┌──────▼──────┐   ┌──────▼──────┐
-    │  Firebase   │   │  Nebius AI  │
-    │  Firestore  │   │     API     │
-    └─────────────┘   └─────────────┘
+┌─────────────────────────────────────────────────────────────┐
+│                        Client Browser                        │
+│  ┌──────────────────────────────────────────────────────┐   │
+│  │     React App (TypeScript + Vite)                    │   │
+│  │  ┌────────────┬──────────────┬──────────────────┐   │   │
+│  │  │ Components │  Services    │  State Management│   │   │
+│  │  │            │  - Auth      │  - Local Storage │   │   │
+│  │  │            │  - API       │  - Context       │   │   │
+│  │  │            │  - Firebase  │  - Hooks         │   │   │
+│  │  └────────────┴──────────────┴──────────────────┘   │   │
+│  └──────────────────────────────────────────────────────┘   │
+└──────────────────────┬──────────────────────────────────────┘
+                       │ HTTPS / REST API
+┌──────────────────────┴──────────────────────────────────────┐
+│                    FastAPI Backend                           │
+│  ┌──────────────────────────────────────────────────────┐   │
+│  │     Routers (Endpoints)                              │   │
+│  │  ┌─────────┬────────────┬──────────────┐            │   │
+│  │  │ Prompt  │   User     │     Auth     │            │   │
+│  │  │ Router  │   Router   │    Router    │            │   │
+│  │  └────┬────┴──────┬─────┴──────┬───────┘            │   │
+│  │       │           │            │                     │   │
+│  │  ┌────┴───────────┴────────────┴───────┐            │   │
+│  │  │         Services Layer              │            │   │
+│  │  │  - Nebius AI (Optimization)         │            │   │
+│  │  │  - Firebase Admin (DB)              │            │   │
+│  │  │  - Token Counter                    │            │   │
+│  │  └─────────────┬───────────────────────┘            │   │
+│  └────────────────┼──────────────────────────────────┘   │
+└───────────────────┼──────────────────────────────────────┘
+                    │
+        ┌───────────┴────────────┐
+        │                        │
+┌───────▼─────────┐    ┌─────────▼──────────┐
+│  Firebase Auth  │    │  Nebius AI API     │
+│  & Firestore    │    │  (Prompt Optimize) │
+└─────────────────┘    └────────────────────┘
 ```
 
 ---
@@ -95,274 +123,360 @@ The application features a clean, intuitive interface for prompt optimization:
 ## 🚀 Quick Start
 
 ### Prerequisites
-- Node.js 18+
+
+- Node.js 18+ and npm/pnpm
 - Python 3.10+
-- Firebase project (with Firestore enabled)
+- Firebase project with Firestore enabled
 - Nebius AI API key
 
-### One-Command Setup
+### 1. Clone Repository
 
 ```bash
-# Clone the repository
-git clone https://github.com/canreves/prompt-refiner-mvp.git
-cd prompt-refiner-mvp
-
-# Start Frontend (runs in mock mode without backend)
-cd frontend && npm install && npm run dev
+git clone https://github.com/ErayBahar/prompt-optimizer-mvp.git
+cd prompt-optimizer-mvp
 ```
 
-Open http://localhost:5173 - **that's it!** The frontend works in mock mode without any backend setup.
-
----
-
-## 📦 Installation
-
-### Frontend Setup
-
-```bash
-cd frontend
-
-# Install dependencies
-npm install
-# or
-pnpm install
-
-# Start development server
-npm run dev
-
-# Build for production
-npm run build
-```
-
-### Backend Setup
+### 2. Backend Setup
 
 ```bash
 cd backend
 
 # Create virtual environment
 python -m venv venv
-
-# Activate virtual environment
-# Windows
-venv\Scripts\activate
-# macOS/Linux
-source venv/bin/activate
+source venv/bin/activate  # On Windows: venv\Scripts\activate
 
 # Install dependencies
 pip install -r requirements.txt
 
-# Run the server
-uvicorn main:app --reload
+# Configure environment variables
+cp .env.example .env
+# Edit .env with your credentials:
+# - NEBIUS_API_KEY=your_api_key
+# - FIREBASE_CREDENTIALS=path/to/serviceAccountKey.json
+
+# Download Firebase credentials from Firebase Console
+# Save as backend/services/serviceAccountKey.json
+
+# Start backend server
+uvicorn main:app --reload --host 0.0.0.0 --port 8000
 ```
 
-### Environment Variables
+Backend will run at: `http://localhost:8000`
 
-#### Backend (.env)
-```env
-# Nebius AI API Key
-NEBIUS_API_KEY=your_nebius_api_key
+### 3. Frontend Setup
 
-# Firebase credentials path
-FIREBASE_CREDENTIALS=services/serviceAccountKey.json
+```bash
+cd ../frontend
+
+# Install dependencies
+npm install
+
+# Configure Firebase (create .env file if needed)
+# Add your Firebase config (optional for development)
+
+# Start development server
+npm run dev
 ```
 
-#### Frontend (.env)
-```env
-# Backend API URL
-VITE_API_URL=http://localhost:8000
-```
+Frontend will run at: `http://localhost:5173`
 
-### Firebase Setup
+### 4. Access the Application
 
-1. Go to [Firebase Console](https://console.firebase.google.com/)
-2. Create a new project or select existing
-3. Enable **Firestore Database**
-4. Go to Project Settings → Service Accounts
-5. Click "Generate new private key"
-6. Save as `backend/services/serviceAccountKey.json`
+1. Open `http://localhost:5173` in your browser
+2. Sign up or log in with email/password
+3. Start optimizing prompts!
 
-> ⚠️ **Important**: Never commit `serviceAccountKey.json` to git!
+**API Documentation**: Visit `http://localhost:8000/docs` for interactive API docs
 
 ---
 
 ## 📁 Project Structure
 
 ```
-prompt-refiner-mvp/
-├── 📂 backend/                   # Python FastAPI Backend
-│   ├── main.py                   # Application entry point
-│   ├── requirements.txt          # Python dependencies
-│   ├── 📂 core/
-│   │   └── config.py             # App configuration
-│   ├── 📂 routers/
-│   │   ├── auth_router.py        # Authentication endpoints
-│   │   ├── prompt_router.py      # Prompt optimization endpoints
-│   │   └── user_router.py        # User management endpoints
-│   ├── 📂 schemas/
-│   │   ├── prompt.py             # Prompt data models
-│   │   └── user.py               # User data models
-│   └── 📂 services/
-│       ├── firebase_db.py        # Firestore integration
-│       ├── nebius_ai.py          # AI service integration
-│       ├── sanitize.py           # Input sanitization
-│       └── token_counter.py      # Token counting utility
+prompt-optimizer-mvp/
+├── backend/                    # Python FastAPI backend
+│   ├── main.py                # Entry point
+│   ├── requirements.txt       # Python dependencies
+│   ├── .env                   # Environment variables (not in git)
+│   │
+│   ├── core/
+│   │   └── config.py          # Configuration settings
+│   │
+│   ├── routers/
+│   │   ├── prompt_router.py   # Prompt optimization endpoints
+│   │   ├── user_router.py     # User management endpoints
+│   │   └── auth_router.py     # Authentication endpoints
+│   │
+│   ├── schemas/
+│   │   ├── prompt.py          # Prompt data models
+│   │   └── user.py            # User data models
+│   │
+│   └── services/
+│       ├── firebase_db.py     # Firestore database service
+│       ├── nebius_ai.py       # AI optimization service
+│       ├── token_counter.py   # Token counting utility
+│       └── serviceAccountKey.json  # Firebase credentials (not in git)
 │
-├── 📂 frontend/                  # React TypeScript Frontend
-│   ├── index.html                # HTML entry
-│   ├── package.json              # Node dependencies
-│   ├── vite.config.ts            # Vite configuration
-│   ├── tsconfig.json             # TypeScript config
-│   └── 📂 src/
-│       ├── main.tsx              # React entry point
-│       └── 📂 app/
-│           ├── App.tsx           # Main application
-│           ├── 📂 components/    # React components
-│           ├── 📂 services/      # API services
-│           ├── 📂 contexts/      # React contexts
-│           └── 📂 styles/        # CSS styles
+├── frontend/                   # React TypeScript frontend
+│   ├── index.html             # HTML entry point
+│   ├── package.json           # Node dependencies
+│   ├── vite.config.ts         # Vite configuration
+│   ├── tsconfig.json          # TypeScript configuration
+│   ├── tailwind.config.js     # Tailwind CSS configuration
+│   │
+│   └── src/
+│       ├── main.tsx           # React entry point
+│       ├── app/
+│       │   ├── App.tsx        # Main application component
+│       │   └── components/    # React components
+│       │       ├── LandingPage.tsx
+│       │       ├── LoginPage.tsx
+│       │       ├── PromptInput.tsx
+│       │       ├── LLMSelector.tsx
+│       │       ├── ScoreSettings.tsx
+│       │       ├── OptimizeButton.tsx
+│       │       ├── ResultDisplay.tsx
+│       │       ├── RatingFeedback.tsx
+│       │       ├── PromptHistory.tsx
+│       │       ├── ProjectList.tsx
+│       │       ├── ProjectPromptView.tsx
+│       │       ├── HelpButton.tsx
+│       │       └── ui/        # Reusable UI components
+│       │
+│       ├── services/
+│       │   ├── apiClient.ts   # HTTP client
+│       │   ├── apiService.ts  # API integration
+│       │   ├── authService.ts # Firebase auth
+│       │   ├── historyService.ts
+│       │   ├── projectService.ts
+│       │   └── feedbackService.ts
+│       │
+│       ├── contexts/
+│       │   └── ThemeContext.tsx  # Theme management
+│       │
+│       └── styles/
+│           ├── index.css      # Global styles
+│           ├── tailwind.css   # Tailwind imports
+│           └── theme.css      # Theme variables
 │
-├── render.yaml                   # Render deployment config
-└── README.md                     # This file
+├── README.md                  # This file
+├── package.json               # Root package config
+├── render.yaml                # Render deployment config
+└── .gitignore                # Git ignore rules
 ```
 
 ---
 
-## 🔌 API Reference
+## 🔄 How It Works
+
+### 1. Prompt Analysis Flow
+
+```
+User Input → FastAPI Backend → Nebius AI Analysis → Score Calculation → Store in Firestore
+                ↓
+Frontend Display ← Structured Data ← 6 Component Breakdown
+```
+
+**Components Analyzed**:
+- **Task**: What needs to be done (e.g., "Write a blog post")
+- **Role**: AI's perspective (e.g., "As a marketing expert")
+- **Style**: Tone and manner (e.g., "Professional, engaging")
+- **Output**: Expected format (e.g., "1000 words, markdown format")
+- **Rules**: Constraints (e.g., "Avoid jargon, use examples")
+- **Context**: Background information (e.g., "For tech-savvy audience")
+
+### 2. Scoring System
+
+Each component receives a score (0-10):
+- **0-3**: Poor - Missing or unclear
+- **4-6**: Fair - Present but needs improvement
+- **7-8**: Good - Well-defined
+- **9-10**: Excellent - Clear, specific, actionable
+
+**Overall Score** = Weighted average of component scores
+
+### 3. Optimization Process
+
+1. User submits original prompt
+2. Backend analyzes and scores components
+3. AI generates optimized version
+4. System compares improvements
+5. User receives both versions with metrics
+6. User can rate the optimization
+
+### 4. Data Flow
+
+```
+┌──────────┐      ┌──────────┐      ┌───────────┐      ┌──────────┐
+│  User    │─────▶│ Frontend │─────▶│  Backend  │─────▶│ Nebius   │
+│ Browser  │      │  React   │      │  FastAPI  │      │   AI     │
+└──────────┘      └──────────┘      └───────────┘      └──────────┘
+     ▲                  │                  │                   │
+     │                  ▼                  ▼                   │
+     │            ┌──────────┐      ┌───────────┐            │
+     └────────────│ Firebase │◀─────│ Firestore │◀───────────┘
+                  │   Auth   │      │  Database │
+                  └──────────┘      └───────────┘
+```
+
+---
+
+## ⚙️ Configuration
+
+### Backend Environment Variables
+
+Create `backend/.env`:
+
+```env
+# Nebius AI API
+NEBIUS_API_KEY=your_nebius_api_key_here
+
+# Firebase
+FIREBASE_CREDENTIALS=backend/services/serviceAccountKey.json
+
+# Server (optional)
+PORT=8000
+HOST=0.0.0.0
+```
+
+### Frontend Environment Variables
+
+Create `frontend/.env`:
+
+```env
+# API Endpoint
+VITE_API_BASE_URL=http://localhost:8000/api/v1
+
+# Firebase Configuration (optional)
+VITE_FIREBASE_API_KEY=your_api_key
+VITE_FIREBASE_AUTH_DOMAIN=your_project.firebaseapp.com
+VITE_FIREBASE_PROJECT_ID=your_project_id
+```
+
+### Firebase Setup
+
+1. Go to [Firebase Console](https://console.firebase.google.com/)
+2. Create a new project
+3. Enable **Firestore Database**
+4. Enable **Email/Password Authentication**
+5. Download service account key:
+   - Project Settings → Service Accounts → Generate New Private Key
+   - Save as `backend/services/serviceAccountKey.json`
+
+---
+
+## 📚 API Documentation
 
 ### Base URL
 ```
 http://localhost:8000/api/v1
 ```
 
-### Endpoints
+### Key Endpoints
 
-#### Authentication
 | Method | Endpoint | Description |
 |--------|----------|-------------|
-| POST | `/auth/login` | User login |
-| POST | `/auth/register` | User registration |
-| POST | `/auth/logout` | User logout |
+| POST | `/optimize` | Analyze and optimize prompt in one step |
+| POST | `/parse` | Analyze prompt without optimization |
+| GET | `/history/{user_id}` | Get user's prompt history |
+| DELETE | `/prompt/{prompt_id}` | Delete a prompt |
+| PUT | `/prompt/{prompt_id}/favorite` | Toggle favorite status |
+| POST | `/prompt/{prompt_id}/feedback` | Submit rating/feedback |
+| GET | `/projects/{user_id}` | Get user's projects |
+| POST | `/projects` | Create new project |
+| POST | `/verify-token` | Verify Firebase auth token |
 
-#### Prompts
-| Method | Endpoint | Description |
-|--------|----------|-------------|
-| POST | `/optimize` | Optimize a prompt |
-| GET | `/history` | Get optimization history |
-| DELETE | `/history/{id}` | Delete history item |
-
-#### Users
-| Method | Endpoint | Description |
-|--------|----------|-------------|
-| GET | `/user/profile` | Get user profile |
-| PUT | `/user/profile` | Update user profile |
-| GET | `/user/favorites` | Get favorite prompts |
-
-### Example Request
-
-```bash
-curl -X POST "http://localhost:8000/api/v1/optimize" \
-  -H "Content-Type: application/json" \
-  -H "Authorization: Bearer YOUR_TOKEN" \
-  -d '{
-    "prompt": "Write a blog post about AI",
-    "model": "gpt-4",
-    "weights": {
-      "task": 1.0,
-      "role": 0.8,
-      "style": 0.6,
-      "output": 0.9,
-      "rules": 0.7
-    }
-  }'
-```
+**Full API Documentation**: `http://localhost:8000/docs` (when backend is running)
 
 ---
 
-## ☁️ Deployment
+## 🚀 Deployment
 
-### Render (Recommended)
+### Backend (Render)
 
-The project includes a `render.yaml` for easy deployment:
+1. Push code to GitHub
+2. Create new Web Service on [Render](https://render.com)
+3. Connect GitHub repository
+4. Configure:
+   - **Build Command**: `pip install -r requirements.txt`
+   - **Start Command**: `uvicorn main:app --host 0.0.0.0 --port $PORT`
+   - **Environment Variables**: Add all from `.env`
+5. Deploy
 
-1. Push your code to GitHub
-2. Connect your repo to [Render](https://render.com)
-3. Create a new **Blueprint** and select your repo
-4. Add environment variables:
-   - `NEBIUS_API_KEY`
-   - `FIREBASE_SERVICE_ACCOUNT_JSON`
-   - `VITE_API_URL`
-5. Deploy!
+### Frontend (Vercel/Netlify)
 
-### Manual Deployment
-
-#### Backend
+**Vercel**:
 ```bash
-cd backend
-gunicorn -k uvicorn.workers.UvicornWorker main:app --bind 0.0.0.0:8000
+npm install -g vercel
+cd frontend
+vercel
 ```
 
-#### Frontend
+**Netlify**:
 ```bash
 cd frontend
 npm run build
-# Serve the 'dist' folder with any static file server
+# Deploy dist/ folder to Netlify
 ```
 
----
+### Environment Variables in Production
 
-## 🛠️ Tech Stack
-
-### Frontend
-| Technology | Purpose |
-|------------|---------|
-| React 18 | UI Framework |
-| TypeScript | Type Safety |
-| Vite | Build Tool |
-| Tailwind CSS 4 | Styling |
-| Radix UI | Accessible Components |
-| Firebase SDK | Authentication |
-| Lucide React | Icons |
-
-### Backend
-| Technology | Purpose |
-|------------|---------|
-| FastAPI | Web Framework |
-| Pydantic | Data Validation |
-| Firebase Admin | Auth & Database |
-| OpenAI SDK | AI Integration |
-| Tiktoken | Token Counting |
-| Uvicorn/Gunicorn | ASGI Server |
+Remember to set:
+- Backend: `NEBIUS_API_KEY`, `FIREBASE_CREDENTIALS`
+- Frontend: `VITE_API_BASE_URL` (production backend URL)
 
 ---
 
-## 🧪 Development
-
-### Running Tests
+## 🧪 Testing
 
 ```bash
-# Backend tests
+# Backend tests (when implemented)
 cd backend
-pytest
+pytest tests/ -v
 
-# Frontend tests
+# Frontend tests (when implemented)
 cd frontend
-npm test
-```
-
-### Code Formatting
-
-```bash
-# Backend
-cd backend
-black .
-isort .
-
-# Frontend
-cd frontend
-npm run lint
+npm run test
 ```
 
 ---
+
+## 🐛 Troubleshooting
+
+### Common Issues
+
+**Backend won't start**:
+- Check Python version: `python --version` (must be 3.10+)
+- Verify virtual environment is activated
+- Ensure `serviceAccountKey.json` exists
+
+**Frontend connection errors**:
+- Confirm backend is running on port 8000
+- Check CORS settings in `main.py`
+- Verify Firebase configuration
+
+**Authentication errors**:
+- Verify Firebase Auth is enabled
+- Check token expiration
+- Ensure credentials are correct
+
+---
+
+## 🤝 Contributing
+
+We welcome contributions! Please follow these steps:
+
+1. Fork the repository
+2. Create a feature branch: `git checkout -b feature/amazing-feature`
+3. Commit changes: `git commit -m 'Add amazing feature'`
+4. Push to branch: `git push origin feature/amazing-feature`
+5. Open a Pull Request
+
+### Coding Standards
+
+- **Backend**: Follow PEP 8, use type hints
+- **Frontend**: Follow ESLint rules, use TypeScript strictly
+- **Commits**: Use conventional commits (feat, fix, docs, etc.)
 
 ---
 
@@ -371,3 +485,45 @@ npm run lint
 This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
 
 ---
+
+## 👥 Team & Contact
+
+**Entrophi Team**
+
+- 🌐 Website: [entrophi.co](https://entrophi.co)
+- 📧 Email: info@entrophi.co
+- 💼 LinkedIn: [Entrophi Company](https://www.linkedin.com/company/entrophico/)
+- 📷 Instagram: [@entrophi.co](https://www.instagram.com/entrophi.co)
+
+**Working Hours**: Monday-Friday 09:00-18:00, Saturday 10:00-16:00 (GMT+3)
+
+---
+
+## 🙏 Acknowledgments
+
+- [Nebius AI](https://nebius.ai) - AI optimization engine
+- [Firebase](https://firebase.google.com) - Authentication & Database
+- [Radix UI](https://www.radix-ui.com/) - Accessible UI components
+- [Lucide](https://lucide.dev/) - Beautiful icons
+- [Tailwind CSS](https://tailwindcss.com/) - Utility-first CSS
+
+---
+
+## 📊 Project Status
+
+- ✅ Core optimization functionality
+- ✅ User authentication & authorization
+- ✅ Project management system
+- ✅ Dark/Light theme support
+- ✅ Responsive mobile design
+- ✅ Real-time metrics tracking
+- 🚧 Unit & integration tests
+- 🚧 Performance optimization
+- 🚧 Advanced analytics dashboard
+- 📋 Rate limiting & quotas
+- 📋 Export/import functionality
+- 📋 Team collaboration features
+
+---
+
+**Made with ❤️ by Entrophi Team**
