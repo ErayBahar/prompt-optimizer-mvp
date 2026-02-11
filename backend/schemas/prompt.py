@@ -298,9 +298,9 @@ class PromptDBModel(BaseModel):
 
 
         if isinstance(response_content, str):
+            # Clean the JSON response before parsing
+            response_content = clean_json_response(response_content)
             if not response_content.strip():
-                # Clean the JSON response before parsing
-                response_content = clean_json_response(response_content)
                 raise ValueError("AI returned empty response for optimization")
             try:
                 response_content = json.loads(response_content)
