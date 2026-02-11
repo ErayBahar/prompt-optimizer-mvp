@@ -25,7 +25,7 @@ except ImportError:
 def clean_json_response(content: str) -> str:
     """
     Clean malformed JSON responses from AI models.
-    Handles cases like extra braces, markdown code blocks, etc.
+    Handles cases like extra braces, markdown code blocks, quotes around JSON, etc.
     """
     if not content or not isinstance(content, str):
         return content
@@ -41,17 +41,26 @@ def clean_json_response(content: str) -> str:
         content = re.sub(r'\n?```\s*$', '', content)
         content = content.strip()
     
-    # Fix common issue: extra opening brace at the start
-    # Pattern: "{\n {" or "{\n{" or "{ {" -> should be just "{"
-    # More robust check: if content starts with { and the next non-whitespace char is also {
+    # Fix pattern: { "{ ... }" } - quote before inner brace
+    # Check if after the first { and optional whitespace, there's a "{
     if content.startswith('{'):
-        # Find the position of the first non-whitespace character after the first {
         idx = 1
+        # Skip whitespace
         while idx < len(content) and content[idx].isspace():
             idx += 1
         
-        # If the next non-whitespace char is also {, skip to it
-        if idx < len(content) and content[idx] == '{':
+        # Check for pattern: "{"  (quote followed by brace)
+        if idx < len(content) - 1 and content[idx] == '"' and content[idx + 1] == '{':
+            # Remove the quote before the inner {
+            content = content[:idx] + content[idx + 1:]
+            
+            # Now check for matching closing pattern: }" at the end
+            content = content.rstrip()
+            if content.endswith('"}'):
+                content = content[:-2] + '}'
+        # Check if next char is just another brace (no quote)
+        elif idx < len(content) and content[idx] == '{':
+            # Skip the outer brace
             content = content[idx:]
     
     # Fix trailing extra closing brace
