@@ -3,6 +3,7 @@ import uuid
 from pydantic import BaseModel, Field
 from typing import List, Optional, Dict, Any
 from datetime import datetime
+import re
 
 # Handle imports for both direct execution and module import
 import sys
@@ -19,6 +20,53 @@ except ImportError:
     from services.firebase_db import get_firestore_client
     from services.nebius_ai import run_nebius_ai
     from services.token_counter import count_tokens
+
+
+def clean_json_response(content: str) -> str:
+    """
+    Clean malformed JSON responses from AI models.
+    Handles cases like extra braces, markdown code blocks, etc.
+    """
+    if not content or not isinstance(content, str):
+        return content
+    
+    # Strip whitespace
+    content = content.strip()
+    
+    # Remove markdown code blocks if present
+    if content.startswith("```"):
+        # Remove ```json or ``` at the start
+        content = re.sub(r'^```(?:json)?\s*\n?', '', content)
+        # Remove ``` at the end
+        content = re.sub(r'\n?```\s*$', '', content)
+        content = content.strip()
+    
+    # Fix common issue: extra opening brace at the start
+    # Pattern: "{\n {" or "{\n{" or "{ {" -> should be just "{"
+    # More robust check: if content starts with { and the next non-whitespace char is also {
+    if content.startswith('{'):
+        # Find the position of the first non-whitespace character after the first {
+        idx = 1
+        while idx < len(content) and content[idx].isspace():
+            idx += 1
+        
+        # If the next non-whitespace char is also {, skip to it
+        if idx < len(content) and content[idx] == '{':
+            content = content[idx:]
+    
+    # Fix trailing extra closing brace
+    # Count braces to detect imbalance
+    open_count = content.count('{')
+    close_count = content.count('}')
+    
+    if close_count > open_count:
+        # Remove extra closing braces from the end
+        for _ in range(close_count - open_count):
+            last_brace_idx = content.rfind('}')
+            if last_brace_idx != -1:
+                content = content[:last_brace_idx] + content[last_brace_idx + 1:]
+    
+    return content.strip()
 
 
 class PromptInput(BaseModel):
@@ -184,6 +232,8 @@ class PromptDBModel(BaseModel):
             if not content.strip():
                 raise ValueError("AI returned empty response")
             try:
+                # Clean the JSON response before parsing
+                content = clean_json_response(content)
                 content = json.loads(content)
             except json.JSONDecodeError as e:
                 print(f"JSON decode error: {e}")
@@ -249,6 +299,8 @@ class PromptDBModel(BaseModel):
 
         if isinstance(response_content, str):
             if not response_content.strip():
+                # Clean the JSON response before parsing
+                response_content = clean_json_response(response_content)
                 raise ValueError("AI returned empty response for optimization")
             try:
                 response_content = json.loads(response_content)
