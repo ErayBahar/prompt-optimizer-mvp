@@ -41,6 +41,30 @@ def clean_json_response(content: str) -> str:
         content = re.sub(r'\n?```\s*$', '', content)
         content = content.strip()
     
+    # Try to extract JSON from the content using regex
+    # Look for a JSON object pattern
+    json_pattern = r'\{[^{}]*(?:\{[^{}]*\}[^{}]*)*\}'
+    matches = re.findall(json_pattern, content, re.DOTALL)
+    
+    if matches:
+        # Try to parse each match to find valid JSON
+        for match in matches:
+            try:
+                json.loads(match)
+                # If successful, use this match
+                content = match
+                break
+            except json.JSONDecodeError:
+                continue
+    
+    # Fix double brace patterns at the start
+    if content.startswith('{{'):
+        # Remove the first opening brace
+        content = content[1:]
+        # Check if there are double closing braces at the end
+        if content.endswith('}}'):
+            content = content[:-1]
+    
     # Fix pattern: { "{ ... }" } - quote before inner brace
     # Check if after the first { and optional whitespace, there's a "{
     if content.startswith('{'):
@@ -58,10 +82,24 @@ def clean_json_response(content: str) -> str:
             content = content.rstrip()
             if content.endswith('"}'):
                 content = content[:-2] + '}'
-        # Check if next char is just another brace (no quote)
+        # Check if next char is just another brace (no quote) - pattern: { { ... } }
         elif idx < len(content) and content[idx] == '{':
-            # Skip the outer brace
+            # This is the double brace pattern, remove outer braces
+            # Remove the first opening brace
             content = content[idx:]
+            # Now need to remove the matching closing brace
+            # Find the last } and check if there's another } before it
+            content = content.rstrip()
+            if content.endswith('}'):
+                # Try to parse to find where the actual JSON ends
+                try:
+                    # Temporarily remove last }
+                    test_content = content[:-1].rstrip()
+                    if test_content.endswith('}'):
+                        # We have double closing braces, remove the outer one
+                        content = test_content
+                except:
+                    pass
     
     # Fix trailing extra closing brace
     # Count braces to detect imbalance
@@ -74,6 +112,9 @@ def clean_json_response(content: str) -> str:
             last_brace_idx = content.rfind('}')
             if last_brace_idx != -1:
                 content = content[:last_brace_idx] + content[last_brace_idx + 1:]
+    elif open_count > close_count:
+        # Add missing closing braces
+        content = content + ('}'.join([''] * (open_count - close_count + 1)))
     
     return content.strip()
 
@@ -87,15 +128,22 @@ class PromptInput(BaseModel):
 # 1. parsed data
 class ParsedPrompt(BaseModel):
     role: Optional[str] = None
-    role_score: Optional[float] = None
+    role_score: Optional[float] = 0.0
     task: Optional[str] = None
-    task_score: Optional[float] = None
+    task_score: Optional[float] = 0.0
     style: Optional[str] = None
-    style_score: Optional[float] = None
+    style_score: Optional[float] = 0.0
     output: Optional[str] = None
-    output_score: Optional[float] = None
+    output_score: Optional[float] = 0.0
     rules: Optional[str] = None
-    rules_score: Optional[float] = None
+    rules_score: Optional[float] = 0.0
+
+    def __init__(self, **data):
+        # Ensure all scores have defaults if None
+        for key in ['role_score', 'task_score', 'style_score', 'output_score', 'rules_score']:
+            if data.get(key) is None:
+                data[key] = 0.0
+        super().__init__(**data)
 
     def __init__(self, **data):
         super().__init__(**data)
@@ -148,6 +196,15 @@ class PromptDBModel(BaseModel):
 
     def __init__(self, **data):
         super().__init__(**data)
+        # Ensure weights is never None
+        if self.weights is None:
+            self.weights = {
+                "task": 2,
+                "role": 2,
+                "style": 2,
+                "output": 2,
+                "rules": 2,
+            }
 
     def to_firestore_dict(self) -> dict:
         data = {
@@ -202,6 +259,91 @@ class PromptDBModel(BaseModel):
         except Exception as e:
             return False
 
+    def _extract_json_fallback(self, content: str) -> dict:
+        """
+        Fallback method to extract JSON data from malformed responses using regex.
+        Attempts to find key-value pairs even if the overall JSON structure is broken.
+        """
+        result = {
+            "task": "",
+            "task_score": 0,
+            "role": "",
+            "role_score": 0,
+            "style": "",
+            "style_score": 0,
+            "output": "",
+            "output_score": 0,
+            "rules": "",
+            "rules_score": 0
+        }
+        
+        # Try to extract each field using regex
+        patterns = {
+            "task": r'"task"\s*:\s*"([^"]*)"',
+            "task_score": r'"task_score"\s*:\s*(\d+)',
+            "role": r'"role"\s*:\s*"([^"]*)"',
+            "role_score": r'"role_score"\s*:\s*(\d+)',
+            "style": r'"style"\s*:\s*"([^"]*)"',
+            "style_score": r'"style_score"\s*:\s*(\d+)',
+            "output": r'"output"\s*:\s*"([^"]*)"',
+            "output_score": r'"output_score"\s*:\s*(\d+)',
+            "rules": r'"rules"\s*:\s*"([^"]*)"',
+            "rules_score": r'"rules_score"\s*:\s*(\d+)',
+        }
+        
+        for key, pattern in patterns.items():
+            match = re.search(pattern, content)
+            if match:
+                value = match.group(1)
+                if "score" in key:
+                    try:
+                        result[key] = int(value)
+                    except ValueError:
+                        result[key] = 0
+                else:
+                    result[key] = value
+        
+        print(f"Fallback extraction succeeded with: {result}")
+        return result
+
+    def _extract_json_fallback_optimize(self, content: str) -> dict:
+        """
+        Fallback method to extract optimization JSON data from malformed responses.
+        """
+        result = {
+            "optimizedPrompt": "",
+            "task_score": 0,
+            "role_score": 0,
+            "style_score": 0,
+            "output_score": 0,
+            "rules_score": 0
+        }
+        
+        # Try to extract each field using regex
+        patterns = {
+            "optimizedPrompt": r'"optimizedPrompt"\s*:\s*"([^"]*)"',
+            "task_score": r'"task_score"\s*:\s*(\d+)',
+            "role_score": r'"role_score"\s*:\s*(\d+)',
+            "style_score": r'"style_score"\s*:\s*(\d+)',
+            "output_score": r'"output_score"\s*:\s*(\d+)',
+            "rules_score": r'"rules_score"\s*:\s*(\d+)',
+        }
+        
+        for key, pattern in patterns.items():
+            match = re.search(pattern, content)
+            if match:
+                value = match.group(1)
+                if "score" in key:
+                    try:
+                        result[key] = int(value)
+                    except ValueError:
+                        result[key] = 0
+                else:
+                    result[key] = value
+        
+        print(f"Fallback extraction succeeded with: {result}")
+        return result
+
     def get_parsed_data_and_scores_from_llm_returns_score(
         self,
         ai_model: str = "openai/gpt-oss-20b",
@@ -221,14 +363,10 @@ class PromptDBModel(BaseModel):
         * **8-10:** Highly specific, detailed, and constraint-driven.
 
         ### Output Format
-        Return valid JSON only. Adhere strictly to this schema:
-        {
-        "task": "extracted text", "task_score": int,
-        "role": "extracted text", "role_score": int,
-        "style": "extracted text", "style_score": int,
-        "output": "extracted text", "output_score": int,
-        "rules": "extracted text", "rules_score": int
-        }
+        IMPORTANT: Return ONLY valid JSON. Do not add any extra braces, quotes, or text. Follow this exact format:
+        {"task": "extracted text", "task_score": 0, "role": "extracted text", "role_score": 0, "style": "extracted text", "style_score": 0, "output": "extracted text", "output_score": 0, "rules": "extracted text", "rules_score": 0}
+        
+        Replace the placeholder values with actual data. Scores must be integers from 0-10.
         """
         response = run_nebius_ai(
             prompt=self.inputPrompt, system_prompt=system_prompt, ai_model=ai_model
@@ -247,19 +385,35 @@ class PromptDBModel(BaseModel):
             except json.JSONDecodeError as e:
                 print(f"JSON decode error: {e}")
                 print(f"Content that failed to parse: {content}")
-                raise ValueError(f"AI returned invalid JSON: {str(e)}")
+                # Try one more aggressive fix - extract key-value pairs with regex
+                try:
+                    content = self._extract_json_fallback(content)
+                except Exception as fallback_error:
+                    print(f"Fallback extraction also failed: {fallback_error}")
+                    raise ValueError(f"AI returned invalid JSON: {str(e)}")
         
         self.parsedData = ParsedPrompt(**content)
         self.initialTokenSize = count_tokens(self.inputPrompt)
 
         # Calculate overall score
+        # Ensure weights is not None
+        if not self.weights:
+            self.weights = {"task": 2, "role": 2, "style": 2, "output": 2, "rules": 2}
+        
         total_weight = sum(self.weights.values())
+        # Ensure scores are not None
+        task_score = self.parsedData.task_score if self.parsedData.task_score is not None else 0
+        role_score = self.parsedData.role_score if self.parsedData.role_score is not None else 0
+        style_score = self.parsedData.style_score if self.parsedData.style_score is not None else 0
+        output_score = self.parsedData.output_score if self.parsedData.output_score is not None else 0
+        rules_score = self.parsedData.rules_score if self.parsedData.rules_score is not None else 0
+        
         self.inputPromptScore = round(10 * (
-            (self.parsedData.task_score * self.weights.get("task", 0) / total_weight)
-            + (self.parsedData.role_score * self.weights.get("role", 0) / total_weight)
-            + (self.parsedData.style_score * self.weights.get("style", 0) / total_weight)
-            + (self.parsedData.output_score * self.weights.get("output", 0) / total_weight)
-            + (self.parsedData.rules_score * self.weights.get("rules", 0) / total_weight)
+            (task_score * self.weights.get("task", 0) / total_weight)
+            + (role_score * self.weights.get("role", 0) / total_weight)
+            + (style_score * self.weights.get("style", 0) / total_weight)
+            + (output_score * self.weights.get("output", 0) / total_weight)
+            + (rules_score * self.weights.get("rules", 0) / total_weight)
         ), 2)
 
         return {
@@ -292,12 +446,11 @@ class PromptDBModel(BaseModel):
         * **5-7:** Clear but generic (e.g., "write a blog post").
         * **8-10:** Highly specific, detailed, and constraint-driven.
         
-        ### Output
-        Return valid JSON only. Adhere strictly to this schema:
-        {{
-        "optimizedPrompt": "optimized_prompt", "task_score": int, "role_score": int, "style_score": int, "output_score": int, "rules_score": int
-        }}
-
+        ### Output Format
+        IMPORTANT: Return ONLY valid JSON. Do not add any extra braces, quotes, or text. Follow this exact format:
+        {{"optimizedPrompt": "your optimized prompt here", "task_score": 0, "role_score": 0, "style_score": 0, "output_score": 0, "rules_score": 0}}
+        
+        Replace the placeholder values with actual data. Scores must be integers from 0-10.
         """
         response = run_nebius_ai(
             prompt=self.inputPrompt, system_prompt=system_prompt, ai_model=ai_model
@@ -316,7 +469,12 @@ class PromptDBModel(BaseModel):
             except json.JSONDecodeError as e:
                 print(f"JSON decode error: {e}")
                 print(f"Content that failed to parse: {response_content}")
-                raise ValueError(f"AI returned invalid JSON for optimization: {str(e)}")
+                # Try fallback extraction
+                try:
+                    response_content = self._extract_json_fallback_optimize(response_content)
+                except Exception as fallback_error:
+                    print(f"Fallback extraction also failed: {fallback_error}")
+                    raise ValueError(f"AI returned invalid JSON for optimization: {str(e)}")
         
 
         new_optimized_id = str(uuid.uuid4())
@@ -325,13 +483,34 @@ class PromptDBModel(BaseModel):
         self.usedLLM = ai_model
 
         # Calculate optimized score using same weights
+        # Ensure weights is not None
+        if not self.weights:
+            self.weights = {"task": 2, "role": 2, "style": 2, "output": 2, "rules": 2}
+        
         total_weight = sum(self.weights.values())
+        # Ensure scores are not None and are numbers
+        task_score = response_content.get("task_score")
+        if task_score is None:
+            task_score = 0
+        role_score = response_content.get("role_score")
+        if role_score is None:
+            role_score = 0
+        style_score = response_content.get("style_score")
+        if style_score is None:
+            style_score = 0
+        output_score = response_content.get("output_score")
+        if output_score is None:
+            output_score = 0
+        rules_score = response_content.get("rules_score")
+        if rules_score is None:
+            rules_score = 0
+        
         optimized_score = round(10*(
-            (response_content.get("task_score", 0) * self.weights.get(  "task", 0) / total_weight)
-            + (response_content.get("role_score", 0) * self.weights.get("role", 0) / total_weight)
-            + (response_content.get("style_score", 0) * self.weights.get("style", 0) / total_weight)
-            + (response_content.get("output_score", 0) * self.weights.get("output", 0) / total_weight)
-            + (response_content.get("rules_score", 0) * self.weights.get("rules", 0) / total_weight)
+            (task_score * self.weights.get("task", 0) / total_weight)
+            + (role_score * self.weights.get("role", 0) / total_weight)
+            + (style_score * self.weights.get("style", 0) / total_weight)
+            + (output_score * self.weights.get("output", 0) / total_weight)
+            + (rules_score * self.weights.get("rules", 0) / total_weight)
         ), 2)
         
         # Assign to overallScore so it gets saved to Firestore

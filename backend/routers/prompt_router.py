@@ -87,6 +87,10 @@ async def optimize_existing(prompt_id: str, weights: dict = None, ai_model: str 
         end_time = perf_counter()
         optimize_latency = (end_time - start_time) * 1000
         
+        # Only update Firestore if optimizedPrompt is not empty
+        if not optimized_result.get("optimizedPrompt") or not optimized_result["optimizedPrompt"].strip():
+            raise HTTPException(status_code=500, detail="AI failed to generate optimized prompt")
+        
         # Save latency to Firestore
         prompt_model.save_latency_to_firestore(optimize_latency, optimized_result["optimizedPromptID"])
         
@@ -149,8 +153,11 @@ async def optimize_prompt(request: OptimizeRequest):
         # Save latency
         prompt_model.latencyMs = round(total_latency, 2)
         
-        # Save to Firestore
-        prompt_model.set_to_firestore()
+        # Only save to Firestore if optimizedPrompt is not empty
+        if prompt_model.optimizedPrompt and prompt_model.optimizedPrompt.strip():
+            prompt_model.set_to_firestore()
+        else:
+            raise HTTPException(status_code=500, detail="AI failed to generate optimized prompt")
         
         return {
             "status": "success",
